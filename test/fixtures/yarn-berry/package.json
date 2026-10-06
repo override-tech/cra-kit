@@ -1,0 +1,14 @@
+{
+  "name": "berry-app",
+  "packageManager": "yarn@4.1.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@berry/lib": "workspace:^",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -1,0 +1,170 @@
+name: ReleaseKeep CRA records
+description: >-
+  Regenerate Cyber Resilience Act (EU 2024/2847) records on every release: scope verdict,
+  CycloneDX 1.6 SBOM, OSV and CISA KEV scan, and document templates for the manufacturer.
+author: Override
+branding:
+  icon: shield
+  color: orange
+
+inputs:
+  config:
+    description: Path to cra.yml, relative to working-directory.
+    required: false
+    default: cra.yml
+  fail-on:
+    description: Override scan.failOn from cra.yml (kev, critical, high or none). Empty keeps cra.yml.
+    required: false
+    default: ""
+  commit:
+    description: >-
+      On tag builds, commit the regenerated output directory to the default branch when cra
+      succeeds. Needs `permissions: contents: write`.
+    required: false
+    default: "false"
+  node-version:
+    description: Node.js version used to run cra (22 or later).
+    required: false
+    default: "24"
+  working-directory:
+    description: Directory that holds cra.yml and the project to scan.
+    required: false
+    default: "."
+  artifact-name:
+    description: Name of the uploaded artifact with the generated records.
+    required: false
+    default: cra-compliance
+  upload-token:
+    description: >-
+      The product's upload token from ReleaseKeep (optional). With it, tag builds that pass archive
+      the release in the hosted ten-year archive. Pass it from a secret, never inline.
+    required: false
+    default: ""
+  releasekeep-url:
+    description: Address of the ReleaseKeep service. Empty means https://releasekeep.com.
+    required: false
+    default: ""
+  artifacts:
+    description: Release files to archive with the records, one path per line, relative to working-directory.
+    required: false
+    default: ""
+
+outputs:
+  output-dir:
+    description: Directory the records were written to, relative to working-directory.
+    value: ${{ steps.cra.outputs.output-dir }}
+  verdict:
+    description: Scope verdict (in_scope, out_of_scope, steward_regime).
+    value: ${{ steps.cra.outputs.verdict }}
+  findings:
+    description: Number of vulnerability findings.
+    value: ${{ steps.cra.outputs.findings }}
+  kev:
+    description: Number of findings listed in the CISA KEV catalog.
+    value: ${{ steps.cra.outputs.kev }}
+  exit-code:
+    description: "cra exit code: 0 ok, 1 usage or configuration error, 2 findings over the threshold, 3 network failure."
+    value: ${{ steps.cra.outputs.cra-exit }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    # Release tags (vX.Y.Z and the moving vX) carry the bundled dist/cra.mjs.
+    # Any other ref (a branch, a commit) is built from source here.
+    - name: Build cra when the action ref has no bundle
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+        if [ -f "$ACTION_PATH/dist/cra.mjs" ]; then exit 0; fi
+        echo "dist/cra.mjs is not part of this ref; building it from source."
+        cd "$ACTION_PATH"
+        npm ci --no-audit --no-fund
+        npm run build
+
+    - name: Generate CRA records
+      id: cra
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        CRA_BIN: ${{ github.action_path }}/dist/cra.mjs
+        CRA_CONFIG: ${{ inputs.config }}
+        CRA_FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        set +e
+        args=(all --config "$CRA_CONFIG" --summary "$GITHUB_STEP_SUMMARY" --outputs "$GITHUB_OUTPUT")
+        if [ -n "$CRA_FAIL_ON" ]; then args+=(--fail-on "$CRA_FAIL_ON"); fi
+        node "$CRA_BIN" "${args[@]}"
+        echo "cra-exit=$?" >> "$GITHUB_OUTPUT"
+
+    - name: Upload the records
+      if: steps.cra.outputs.output-dir != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ steps.cra.outputs.output-dir }}
+        if-no-files-found: error
+
+    - name: Archive the release with ReleaseKeep
+      if: >-
+        inputs.upload-token != '' &&
+        github.ref_type == 'tag' && steps.cra.outputs.cra-exit == '0'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        CRA_BIN: ${{ github.action_path }}/dist/cra.mjs
+        CRA_CONFIG: ${{ inputs.config }}
+        RELEASEKEEP_URL: ${{ inputs.releasekeep-url }}
+        RELEASEKEEP_TOKEN: ${{ inputs.upload-token }}
+        CRA_ARTIFACTS: ${{ inputs.artifacts }}
+      run: |
+        set -euo pipefail
+        args=(publish --config "$CRA_CONFIG")
+        while IFS= read -r path; do
+          [ -n "$path" ] && args+=(--artifact "$path")
+        done <<< "$CRA_ARTIFACTS"
+        node "$CRA_BIN" "${args[@]}"
+
+    - name: Commit the records to the default branch
+      if: inputs.commit == 'true' && github.ref_type == 'tag' && steps.cra.outputs.cra-exit == '0'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        OUT_DIR: ${{ steps.cra.outputs.output-dir }}
+        BRANCH: ${{ github.event.repository.default_branch }}
+        TAG: ${{ github.ref_name }}
+      run: |
+        set -euo pipefail
+        staged="$(mktemp -d)"
+        cp -R "$OUT_DIR/." "$staged/"
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git fetch --no-tags --depth=1 origin "$BRANCH"
+        git checkout --force -B "$BRANCH" "origin/$BRANCH"
+        mkdir -p "$OUT_DIR"
+        cp -R "$staged/." "$OUT_DIR/"
+        git add -- "$OUT_DIR"
+        if git diff --cached --quiet; then
+          echo "The records for $TAG are already on $BRANCH."
+          exit 0
+        fi
+        git commit -m "docs(compliance): CRA records for $TAG"
+        git push origin "HEAD:$BRANCH"
+
+    - name: Fail on the cra exit code
+      if: steps.cra.outputs.cra-exit != '0'
+      shell: bash
+      env:
+        CRA_EXIT: ${{ steps.cra.outputs.cra-exit }}
+      run: |
+        case "$CRA_EXIT" in
+          2) echo "::error title=ReleaseKeep::Vulnerability findings at or above the fail-on threshold. See the job summary." ;;
+          3) echo "::error title=ReleaseKeep::OSV or the CISA KEV feed was unreachable. The records were written without scan results." ;;
+          *) echo "::error title=ReleaseKeep::cra failed with exit code ${CRA_EXIT:-unknown}. See the log above." ;;
+        esac
+        exit "${CRA_EXIT:-1}"

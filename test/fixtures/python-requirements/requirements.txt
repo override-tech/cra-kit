@@ -1,0 +1,9 @@
+# Production dependencies
+-r requirements-base.txt
+--index-url https://pypi.org/simple
+
+Django==4.2.7 \
+    --hash=sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaf1188df29fc41
+requests[security]>=2.31.0
+PyYAML==6.0.1 ; python_version >= "3.8"  # inline comment
+-e git+https://github.com/example/editable.git#egg=editable

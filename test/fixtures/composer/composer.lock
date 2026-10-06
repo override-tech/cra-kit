@@ -1,0 +1,71 @@
+{
+  "_readme": [
+    "This file locks the dependencies of your project to a known state",
+    "This file is @generated automatically"
+  ],
+  "content-hash": "1d5a8ce4a3b8f8c1b2f0e7d6c5b4a39281706f5e4d3c2b1a0f9e8d7c6b5a4938",
+  "packages": [
+    {
+      "name": "monolog/monolog",
+      "version": "3.5.0",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Seldaek/monolog.git",
+        "reference": "c915e2634718dbc8a4a15c61b0e62e7a44e14448"
+      },
+      "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/Seldaek/monolog/zipball/c915e2634718dbc8a4a15c61b0e62e7a44e14448",
+        "reference": "c915e2634718dbc8a4a15c61b0e62e7a44e14448",
+        "shasum": ""
+      },
+      "require": {
+        "php": ">=8.1",
+        "psr/log": "^2.0 || ^3.0"
+      },
+      "type": "library",
+      "license": ["MIT"]
+    },
+    {
+      "name": "psr/log",
+      "version": "3.0.0",
+      "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/php-fig/log/zipball/fe5ea303b0887d5caefd3d431c3e61ad47037001",
+        "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001",
+        "shasum": "fe5ea303b0887d5caefd3d431c3e61ad47037001"
+      },
+      "require": {
+        "php": ">=8.0.0"
+      },
+      "type": "library",
+      "license": ["MIT"]
+    },
+    {
+      "name": "symfony/polyfill-mbstring",
+      "version": "v1.29.0",
+      "require": {
+        "php": ">=7.1"
+      },
+      "type": "library",
+      "license": ["MIT"]
+    }
+  ],
+  "packages-dev": [
+    {
+      "name": "phpunit/phpunit",
+      "version": "10.5.10",
+      "require": {
+        "php": ">=8.1"
+      },
+      "type": "library",
+      "license": ["BSD-3-Clause"]
+    }
+  ],
+  "aliases": [],
+  "minimum-stability": "stable",
+  "platform": {
+    "php": ">=8.1"
+  },
+  "plugin-api-version": "2.6.0"
+}

@@ -1,0 +1,50 @@
+{
+  "name": "releasekeep",
+  "version": "0.1.0",
+  "description": "Cyber Resilience Act (EU 2024/2847) records for installed and distributed software, regenerated on every release: scope verdict, CycloneDX SBOM, OSV and CISA KEV scan, document templates.",
+  "keywords": [
+    "cyber-resilience-act",
+    "cra",
+    "sbom",
+    "cyclonedx",
+    "vulnerability",
+    "kev",
+    "security.txt",
+    "compliance"
+  ],
+  "homepage": "https://releasekeep.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/override-tech/cra-kit.git"
+  },
+  "bugs": "https://github.com/override-tech/cra-kit/issues",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "cra": "dist/cra.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ci": "vitest --run",
+    "prepack": "node build.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "^26.5.1",
+    "esbuild": "^0.28.2",
+    "smol-toml": "^1.9.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.1"
+  }
+}
