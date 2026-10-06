@@ -1,0 +1,7 @@
+github.com/a/b v1.0.0 h1:Q2Fh3kBFvAyyoxEA0rxG9YkUI1mRM9y/eM4dwl63zF8=
+github.com/a/b v1.0.0/go.mod h1:7YaEuVJ8zCmGDAkoFHMMcyqrKN2Fe7/lfmyXqSdeYgg=
+github.com/c/d v0.1.0/go.mod h1:x8PoqBRn5cCqd6tO27dBuyKsQ8Ui4tA1a0WWYGfCVfE=
+github.com/c/d v0.1.5 h1:dLHkqjyzbLGqVbQMlfy7tGcBmCEZ1qU4ofxRwSQvyA8=
+github.com/c/d v0.2.0 h1:Bm3PW/zmaN5Ci7uBQJE2cYzb7u1FIVEg+EOh6ADwM+E=
+github.com/c/d v0.2.0/go.mod h1:Bm3PW/zmaN5Ci7uBQJE2cYzb7u1FIVEg+EOh6ADwM+E=
+github.com/e/f v2.0.0/go.mod h1:abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG=

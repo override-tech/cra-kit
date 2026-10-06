@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "poetry-app"
+version = "0.1.0"
+description = ""
+authors = ["Example <dev@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31"
+rich = { version = "^13.0", optional = true }
+
+[tool.poetry.extras]
+pretty = ["rich"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"

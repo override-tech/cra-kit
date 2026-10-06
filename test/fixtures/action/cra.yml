@@ -1,0 +1,29 @@
+# Fixture for the action smoke test in CI (.github/workflows/ci.yml, job cra-action):
+# a fictional manufacturer, a paid self-hosted product and an npm lockfile.
+product:
+  name: Acme Backup
+  version: "2.3.0"
+  manufacturer:
+    name: Acme Software sp. z o.o.
+    address: ul. Prosta 1, 00-001 Warszawa, Poland
+    email: legal@acme.example
+    website: https://acme.example
+  distribution: self_hosted_server
+  coreFunction: none_of_the_above
+  monetisation: [subscription_or_licence]
+  isFoss: false
+  intendedPurpose: Encrypted backups of company file servers, run on customer premises.
+  supportEndsAt: 2032-12
+  securityContact:
+    email: security@acme.example
+    url: https://acme.example/security
+  languages: [en]
+
+sbom:
+  paths: ["."]
+
+scan:
+  failOn: kev
+
+output:
+  dir: compliance

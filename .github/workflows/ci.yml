@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run test:ci
+      - run: npm run build
+      - run: node dist/cra.mjs --version
+
+  # The action exactly as a user runs it, from this ref (no bundled dist, so it
+  # builds from source), against a small npm project.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: cra
+        uses: ./
+        with:
+          working-directory: test/fixtures/action
+          fail-on: none
+          artifact-name: cra-compliance-fixture
+      - name: Check the outputs
+        env:
+          VERDICT: ${{ steps.cra.outputs.verdict }}
+          OUT: ${{ steps.cra.outputs.output-dir }}
+        run: |
+          set -euo pipefail
+          test "$VERDICT" = in_scope
+          test -s "test/fixtures/action/$OUT/sbom.cdx.json"
+          test -s "test/fixtures/action/$OUT/index.md"

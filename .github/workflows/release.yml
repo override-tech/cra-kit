@@ -1,0 +1,65 @@
+name: release
+
+# Push a tag vX.Y.Z on main. This checks and builds it, publishes the npm
+# package `releasekeep` (when the NPM_TOKEN secret is set), and moves the
+# action tags: vX.Y.Z and vX then point at a commit that contains the bundled
+# dist/cra.mjs, so `uses: override-tech/cra-kit@vX` needs no build step.
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: write
+  id-token: write # npm provenance
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm run test:ci
+      - name: Tag matches package.json
+        env:
+          TAG: ${{ github.ref_name }}
+        run: test "v$(node -p 'require("./package.json").version')" = "$TAG"
+      - run: npm run build
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning title=npm::NPM_TOKEN is not set; skipping npm publish."
+            exit 0
+          fi
+          npm publish --provenance --access public
+
+      - name: Point the action tags at a commit with the bundle
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          major="${TAG%%.*}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --detach
+          git add --force dist/cra.mjs
+          git commit -m "Release $TAG with the bundled CLI"
+          git tag --force "$TAG"
+          git tag --force "$major"
+          git push --force origin "refs/tags/$TAG" "refs/tags/$major"
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" dist/cra.mjs --title "$TAG" --generate-notes --verify-tag
