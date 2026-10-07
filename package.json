@@ -15,9 +15,9 @@
   "homepage": "https://releasekeep.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/override-tech/cra-kit.git"
+    "url": "git+https://github.com/override-tech/releasekeep.git"
   },
-  "bugs": "https://github.com/override-tech/cra-kit/issues",
+  "bugs": "https://github.com/override-tech/releasekeep/issues",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
