@@ -1,9 +1,9 @@
 name: release
 
 # Push a tag vX.Y.Z on main. This checks and builds it, publishes the npm
-# package `releasekeep` (when the NPM_TOKEN secret is set), and moves the
+# package `releasekeep` (trusted publishing, see the publish step), and moves the
 # action tags: vX.Y.Z and vX then point at a commit that contains the bundled
-# dist/cra.mjs, so `uses: override-tech/cra-kit@vX` needs no build step.
+# dist/cra.mjs, so `uses: override-tech/releasekeep@vX` needs no build step.
 
 on:
   push:
@@ -33,12 +33,21 @@ jobs:
         run: test "v$(node -p 'require("./package.json").version')" = "$TAG"
       - run: npm run build
 
+      # Trusted publishing (OIDC, id-token: write): npm accepts this workflow
+      # without a token once the package's npm settings list
+      # override-tech/releasekeep and release.yml as a trusted publisher.
+      # NPM_TOKEN, if set, is only a fallback. A version already on npm (for
+      # example published by hand) is skipped, so the tag and GitHub release
+      # steps still run.
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::warning title=npm::NPM_TOKEN is not set; skipping npm publish."
+          set -euo pipefail
+          name="$(node -p 'require("./package.json").name')"
+          version="$(node -p 'require("./package.json").version')"
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "::notice title=npm::$name@$version is already on npm; not publishing again."
             exit 0
           fi
           npm publish --provenance --access public

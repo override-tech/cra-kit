@@ -1,6 +1,6 @@
 # cra - Cyber Resilience Act records for installed and distributed software
 
-[![ci](https://github.com/override-tech/cra-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/override-tech/cra-kit/actions/workflows/ci.yml)
+[![ci](https://github.com/override-tech/releasekeep/actions/workflows/ci.yml/badge.svg)](https://github.com/override-tech/releasekeep/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/releasekeep)](https://www.npmjs.com/package/releasekeep)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
@@ -46,7 +46,7 @@ npx releasekeep --help          # run without installing
 npm install --save-dev releasekeep   # or pin it in the project; the command is `cra`
 ```
 
-Each [GitHub release](https://github.com/override-tech/cra-kit/releases) also carries `cra.mjs`, a single file with
+Each [GitHub release](https://github.com/override-tech/releasekeep/releases) also carries `cra.mjs`, a single file with
 no dependencies: download it and run `node cra.mjs`. To build it yourself: `npm ci && npm run build`, which
 writes `dist/cra.mjs`.
 
@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: override-tech/cra-kit@v0
+      - uses: override-tech/releasekeep@v0
         with:
           config: cra.yml
           fail-on: kev
@@ -277,7 +277,7 @@ token from [ReleaseKeep](https://releasekeep.com), the action archives each tagg
 security page, `security.txt` and CSAF advisories current:
 
 ```yaml
-      - uses: override-tech/cra-kit@v0
+      - uses: override-tech/releasekeep@v0
         with:
           fail-on: kev
           upload-token: ${{ secrets.RELEASEKEEP_TOKEN }}

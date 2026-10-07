@@ -28,7 +28,7 @@ export class ConfigError extends CliError {
   ) {
     super(
       `${file} is not valid:\n${problems.map((p) => `  - ${p}`).join("\n")}\n` +
-        "See the cra.yml reference in the README: https://github.com/override-tech/cra-kit#configuration-crayml",
+        "See the cra.yml reference in the README: https://github.com/override-tech/releasekeep#configuration-crayml",
     );
   }
 }
