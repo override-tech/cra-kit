@@ -1,9 +1,15 @@
 name: release
 
-# Push a tag vX.Y.Z on main. This checks and builds it, publishes the npm
-# package `@override-tech/releasekeep` (trusted publishing, see the publish step), and moves the
-# action tags: vX.Y.Z and vX then point at a commit that contains the bundled
-# dist/cra.mjs, so `uses: override-tech/releasekeep@vX` needs no build step.
+# Push a tag vX.Y.Z on main. This checks and builds it, stages the npm package
+# `@override-tech/releasekeep` for approval, and moves the action tags: vX.Y.Z
+# and vX then point at a commit that contains the bundled dist/cra.mjs, so
+# `uses: override-tech/releasekeep@vX` needs no build step.
+#
+# npm: trusted publishing (OIDC, no token) with staged publishing. The package's
+# npm settings list this repository and release.yml as a trusted publisher that
+# may only stage. A maintainer then approves the staged version with 2FA on
+# npmjs.com (Staged Packages) or with `npm stage approve <id>`; only then is it
+# installable. Provenance is generated automatically.
 
 on:
   push:
@@ -11,7 +17,7 @@ on:
 
 permissions:
   contents: write
-  id-token: write # npm provenance
+  id-token: write # npm trusted publishing (OIDC)
 
 jobs:
   release:
@@ -21,8 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
           registry-url: https://registry.npmjs.org
+          # No `cache:` on purpose: no dependency cache in release builds.
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm run type-check
@@ -33,24 +39,27 @@ jobs:
         run: test "v$(node -p 'require("./package.json").version')" = "$TAG"
       - run: npm run build
 
-      # Trusted publishing (OIDC, id-token: write): npm accepts this workflow
-      # without a token once the package's npm settings list
-      # override-tech/releasekeep and release.yml as a trusted publisher.
-      # NPM_TOKEN, if set, is only a fallback. A version already on npm (for
-      # example published by hand) is skipped, so the tag and GitHub release
-      # steps still run.
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # `npm stage publish` needs npm 11.15 or later.
+      - run: npm install --global npm@11
+
+      - name: Stage on npm for approval
         run: |
           set -euo pipefail
           name="$(node -p 'require("./package.json").name')"
           version="$(node -p 'require("./package.json").version')"
           if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "::notice title=npm::$name@$version is already on npm; not publishing again."
+            echo "::notice title=npm::$name@$version is already on npm; nothing to stage."
             exit 0
           fi
-          npm publish --provenance
+          npm stage publish
+          {
+            echo "### npm: approve $name@$version"
+            echo
+            echo "Staged, not yet installable. Approve it with 2FA on"
+            echo "https://www.npmjs.com/package/$name (Staged Packages), or run"
+            echo "\`npm stage list $name\` and \`npm stage approve <id>\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=npm::$name@$version is staged. Approve it on npmjs.com with 2FA."
 
       - name: Point the action tags at a commit with the bundle
         env:
