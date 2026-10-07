@@ -309,7 +309,8 @@ The legal rules (scope, product classes, conformity routes, support period, Art.
 They are shared with the hosted ReleaseKeep service, so a fix there reaches both.
 
 Releases: bump `version` in `package.json` on `main`, then push the tag `v<version>`. The release workflow checks
-and builds it, publishes the npm package and moves the `v<major>` action tag.
+and builds it, stages the npm package through trusted publishing and moves the `v<major>` action tag. A
+maintainer approves the staged version with 2FA on npmjs.com before anyone can install it.
 
 Issues and pull requests are welcome. Report a security problem in this tool privately, as described in
 [SECURITY.md](SECURITY.md), not in an issue.
