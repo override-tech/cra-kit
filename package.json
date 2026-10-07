@@ -1,5 +1,5 @@
 {
-  "name": "releasekeep",
+  "name": "@override-tech/releasekeep",
   "version": "0.1.0",
   "description": "Cyber Resilience Act (EU 2024/2847) records for installed and distributed software, regenerated on every release: scope verdict, CycloneDX SBOM, OSV and CISA KEV scan, document templates.",
   "keywords": [
@@ -26,6 +26,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },
