@@ -87,6 +87,6 @@ jobs:
             exit 0
           fi
           name="$(node -p 'require("./package.json").name')"
-          printf 'npm: `%s@%s` is installable once a maintainer approves the staged version on npmjs.com.\n' \
+          printf 'npm: %s@%s is installable once a maintainer approves the staged version on npmjs.com.\n' \
             "$name" "${TAG#v}" > notes.md
           gh release create "$TAG" dist/cra.mjs --title "$TAG" --notes-file notes.md --generate-notes --verify-tag
