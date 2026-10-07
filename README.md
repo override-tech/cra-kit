@@ -1,7 +1,7 @@
 # cra - Cyber Resilience Act records for installed and distributed software
 
 [![ci](https://github.com/override-tech/releasekeep/actions/workflows/ci.yml/badge.svg)](https://github.com/override-tech/releasekeep/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/releasekeep)](https://www.npmjs.com/package/releasekeep)
+[![npm](https://img.shields.io/npm/v/@override-tech/releasekeep)](https://www.npmjs.com/package/@override-tech/releasekeep)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
 Free and open source, from [ReleaseKeep](https://releasekeep.com). Not sure the CRA applies to your product?
@@ -42,8 +42,8 @@ mobile apps, plugins, paid libraries, firmware. Pure SaaS is outside the CRA (Re
 Node 22 or newer:
 
 ```sh
-npx releasekeep --help          # run without installing
-npm install --save-dev releasekeep   # or pin it in the project; the command is `cra`
+npx @override-tech/releasekeep --help                 # run without installing
+npm install --save-dev @override-tech/releasekeep   # or pin it in the project; the command is `cra`
 ```
 
 Each [GitHub release](https://github.com/override-tech/releasekeep/releases) also carries `cra.mjs`, a single file with
@@ -290,7 +290,7 @@ To use Syft in CI, add `anchore/sbom-action/download-syft` before the action and
 ### Other CI systems
 
 ```sh
-npx releasekeep all --summary summary.md
+npx @override-tech/releasekeep all --summary summary.md
 ```
 
 Exit code 2 fails the build on findings over the threshold; archive or commit `docs/compliance/`.

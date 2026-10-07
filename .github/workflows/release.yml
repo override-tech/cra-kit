@@ -1,7 +1,7 @@
 name: release
 
 # Push a tag vX.Y.Z on main. This checks and builds it, publishes the npm
-# package `releasekeep` (trusted publishing, see the publish step), and moves the
+# package `@override-tech/releasekeep` (trusted publishing, see the publish step), and moves the
 # action tags: vX.Y.Z and vX then point at a commit that contains the bundled
 # dist/cra.mjs, so `uses: override-tech/releasekeep@vX` needs no build step.
 
@@ -50,7 +50,7 @@ jobs:
             echo "::notice title=npm::$name@$version is already on npm; not publishing again."
             exit 0
           fi
-          npm publish --provenance --access public
+          npm publish --provenance
 
       - name: Point the action tags at a commit with the bundle
         env:
