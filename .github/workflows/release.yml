@@ -23,12 +23,15 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: true # pushes the action tags below
+      # setup-node v4 caches only when `cache:` is set; there is none here on
+      # purpose (no dependency cache in release builds).
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: # zizmor: ignore[cache-poisoning]
           node-version: 24
           registry-url: https://registry.npmjs.org
-          # No `cache:` on purpose: no dependency cache in release builds.
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm run type-check
@@ -40,7 +43,7 @@ jobs:
       - run: npm run build
 
       # `npm stage publish` needs npm 11.15 or later.
-      - run: npm install --global npm@11
+      - run: npm install --global npm@11 # zizmor: ignore[adhoc-packages]
 
       - name: Stage on npm for approval
         run: |
