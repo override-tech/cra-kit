@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/override-tech/releasekeep/security/advisories/new
+    about: Privately, through GitHub private vulnerability reporting. Do not open a public issue.
+  - name: Does the CRA apply to my product?
+    url: https://releasekeep.com/scope
+    about: The scope test and guides on releasekeep.com. cra's verdict is triage, not legal advice.

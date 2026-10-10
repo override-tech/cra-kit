@@ -308,12 +308,13 @@ npm run build        # dist/cra.mjs
 The legal rules (scope, product classes, conformity routes, support period, Art. 14 clocks) are in `src/rules/`.
 They are shared with the hosted ReleaseKeep service, so a fix there reaches both.
 
-Releases: bump `version` in `package.json` on `main`, then push the tag `v<version>`. The release workflow checks
-and builds it, stages the npm package through trusted publishing and moves the `v<major>` action tag. A
-maintainer approves the staged version with 2FA on npmjs.com before anyone can install it.
+Releases: bump `version` in `package.json` through a pull request to `main`, then push the tag `v<version>` on
+the merged commit. The release workflow checks and builds it, stages the npm package through trusted publishing
+and moves the `v<major>` action tag. A maintainer approves the staged version with 2FA on npmjs.com before anyone
+can install it.
 
-Issues and pull requests are welcome. Report a security problem in this tool privately, as described in
-[SECURITY.md](SECURITY.md), not in an issue.
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Report a security problem in this
+tool privately, as described in [SECURITY.md](SECURITY.md), not in an issue.
 
 ## License
 
